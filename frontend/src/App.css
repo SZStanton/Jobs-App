@@ -1,0 +1,58 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+}
+
+.container {
+  width: 90%;
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+}
+
+/* Card style for form, filter and batch sections */
+.job-form,
+.filter-section,
+.batch-section {
+  background: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
+
+/* Full-width inputs and buttons in form, filter and batch sections */
+.job-form input,
+.job-form button,
+.filter-section select,
+.batch-section select,
+.batch-section button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+/* Job list grid */
+.jobs-list {
+  display: grid;
+  gap: 20px;
+}
+
+/* Individual job card */
+.job-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+/* Full width controls inside each job card */
+.job-card select,
+.job-card button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+}
