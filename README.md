@@ -6,9 +6,7 @@ A full-stack job-tracking tool for logging, filtering, and updating maintenance 
 
 <table>
   <tr>
-    <td><img src="screenshots/submit-job.png" width="300" alt="Job submission form"/></td>
-    <td><img src="screenshots/filter-jobs.png" width="300" alt="Filter jobs"/></td>
-    <td><img src="screenshots/batch-update.png" width="300" alt="Batch update status"/></td>
+    <td><img src="screenshots/dashboard.png" alt="Main dashboard"/></td>
   </tr>
 </table>
 
