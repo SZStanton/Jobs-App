@@ -6,7 +6,7 @@ A full-stack job-tracking tool for logging, filtering, and updating maintenance 
 
 <table>
   <tr>
-    <td><img src="screenshots/dashboard.png" alt="Main dashboard"/></td>
+    <td><img src="screenshots/dashboard.png" width="500" alt="Main dashboard"/></td>
   </tr>
 </table>
 
