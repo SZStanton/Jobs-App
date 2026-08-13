@@ -20,7 +20,7 @@ const JobSchema = new mongoose.Schema({
   // Current status of the job
   status: {
     type: String,
-    enum: ['submitted', 'in progress', 'completed'], // Only status values allowed
+    enum: ['submitted', 'in-progress', 'completed'], // Only status values allowed
     default: 'submitted', // default status
   },
   // Archive jobs instead of deleting
