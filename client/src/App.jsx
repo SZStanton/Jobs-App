@@ -8,8 +8,9 @@ import JobList from './components/JobList';
 import FilterJobs from './components/FilterJobs';
 import BatchUpdate from './components/BatchUpdate';
 
-// Base URL for all API requests
-const API_URL = 'http://localhost:3000';
+// Base URL for all API requests. Falls back to the local server so a fresh
+// clone runs with no .env
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 function App() {
   // Full Job list
