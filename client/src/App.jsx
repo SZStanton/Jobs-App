@@ -141,7 +141,7 @@ function App() {
     setError(null);
     try {
       await axios.put(`${API_URL}/jobs/batch/update`, {
-        ids: selectedJobs,
+        ids: visibleSelectedIds,
         status: batchStatus,
       });
 
@@ -165,12 +165,19 @@ function App() {
     return matchesStatus && matchesTerm;
   });
 
-  // An empty list means several different things, so say which one. A failed
-  // load is a fourth reason, and the error banner already covers that
+  // Only act on what is actually on screen. Filtering hides jobs without
+  // deselecting them, and a batch must not touch anything the user cannot see
+  const visibleSelectedIds = selectedJobs.filter(id =>
+    filteredJobs.some(job => job._id === id),
+  );
+
+  // An empty list means several different things, so say which one
   function activeEmptyMessage() {
-    if (error) return null;
     if (jobs.length === 0) {
-      return 'No jobs yet. Submit one above to get started.';
+      // A failed first load leaves this empty too, and the banner covers that.
+      // Checked here rather than up front, since a failed archive or delete
+      // also sets error and must not blank out the filter message
+      return error ? null : 'No jobs yet. Submit one above to get started.';
     }
     // Both can be narrowing at once, and blaming only one of them is a lie
     if (term && filterStatus !== 'all') {
@@ -230,7 +237,7 @@ function App() {
             batchStatus={batchStatus}
             setBatchStatus={setBatchStatus}
             batchUpdateJobs={batchUpdateJobs}
-            selectedCount={selectedJobs.length}
+            selectedCount={visibleSelectedIds.length}
           />
         </>
       )}
