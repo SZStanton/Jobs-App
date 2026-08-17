@@ -1,19 +1,20 @@
 const express = require('express');
 const cors = require('cors');
 
-require('./db'); // Import database connection
-
 const jobsRoutes = require('./routes/jobs.routes');
+
 const app = express();
 
-// Middleware
-app.use(cors());
-app.use(express.json()); // Allow JSON request bodies
+// Only the deployed frontend, falling back to the vite dev server locally
+app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }));
+app.use(express.json());
 
-// Routes
+// Render sleeps the free tier after 15 minutes, so the client can hit this to
+// wake it rather than making someone wait on their first real request
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
 app.use('/jobs', jobsRoutes);
 
-// Start server on port 3000
-app.listen(3000, function () {
-  console.log('Server running on port 3000');
-});
+module.exports = app;

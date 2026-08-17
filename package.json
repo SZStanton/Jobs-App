@@ -11,6 +11,7 @@
     "dev:client": "npm run dev -w client",
     "dev:server": "npm run dev -w server",
     "build": "npm run build -w client",
+    "start": "npm start -w server",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
