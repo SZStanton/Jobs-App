@@ -51,6 +51,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# ---- Local route sweep, needs server/.env and Atlas, so never committed ----
+scripts/
+
 # ---- Claude Code: local context, never committed ----
 # CLAUDE.md and reference/ hold notes and personal details that stay on my
 # machine. Check these are here before the first commit on any project.
