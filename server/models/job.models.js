@@ -12,9 +12,11 @@ const JobSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  // Priority level of job
+  // Priority level of job. Fixed set so it can be sorted and colour coded
+  // rather than being whatever someone typed
   priority: {
     type: String,
+    enum: ['low', 'medium', 'high'],
     required: true,
   },
   // Current status of the job
