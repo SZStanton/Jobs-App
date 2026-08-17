@@ -1,106 +1,137 @@
 const Job = require('../models/job.models');
 
+// Pulled off the schema so the allowed values only ever live in one place
+const STATUSES = Job.schema.path('status').enumValues;
+
+// Fields a client is allowed to set. Anything else in the body is dropped, so
+// nobody can flip 'archived' or backdate 'createdAt' through a normal update
+const EDITABLE = ['description', 'location', 'priority', 'status'];
+
+function pickEditable(body = {}) {
+  const fields = {};
+  for (const key of EDITABLE) {
+    if (body[key] !== undefined) fields[key] = body[key];
+  }
+  return fields;
+}
+
+// Mongoose throws these for bad input, which is the client's fault, not a 500
+function sendError(res, err, fallback) {
+  if (err.name === 'ValidationError') {
+    return res.status(400).json({ error: err.message });
+  }
+  if (err.name === 'CastError') {
+    return res.status(400).json({ error: 'Invalid job id' });
+  }
+  console.error(err);
+  return res.status(500).json({ error: fallback });
+}
+
 // CREATE JOB
 exports.createJob = async (req, res) => {
   try {
-    // Create a new job using request data
-    const job = new Job({
-      description: req.body.description,
-      location: req.body.location,
-      priority: req.body.priority,
-    });
-
-    // Save the job to the database
+    const job = new Job(pickEditable(req.body));
     const savedJob = await job.save();
-    // Send the saved job back to client
-    res.send(savedJob);
+    res.status(201).json(savedJob);
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Error creating job');
+    sendError(res, err, 'Error creating job');
   }
 };
 
-// GET ALL JOBS (sorted + not archived)
+// GET ALL JOBS (not archived, newest first)
 exports.getAllJobs = async (req, res) => {
   try {
-    // Find all jobs that are not archived
-    // Sort by status and newest created date
-    const jobs = await Job.find({ archived: false }).sort({
-      status: 1,
-      createdAt: -1,
-    });
-
-    res.send(jobs); // Return all jobs
+    const jobs = await Job.find({ archived: false }).sort({ createdAt: -1 });
+    res.json(jobs);
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Error fetching jobs');
+    sendError(res, err, 'Error fetching jobs');
   }
 };
 
 // UPDATE SINGLE JOB
 exports.updateJob = async (req, res) => {
   try {
-    // Find a job by ID and update it, then return updated document
-    const job = await Job.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
+    const fields = pickEditable(req.body);
+
+    if (Object.keys(fields).length === 0) {
+      return res.status(400).json({ error: 'No editable fields in request' });
+    }
+
+    // runValidators is off by default on an update, which is what let a junk
+    // status past the enum before
+    const job = await Job.findByIdAndUpdate(req.params.id, fields, {
+      returnDocument: 'after',
+      runValidators: true,
     });
 
-    res.send(job); // Send updated job
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    res.json(job);
   } catch (err) {
-    console.error(err);
-    res.status(500).send('update error');
+    sendError(res, err, 'Error updating job');
   }
 };
 
 // BATCH UPDATE STATUS
 exports.batchUpdateStatus = async (req, res) => {
   try {
-    // Update multiple jobs at once
-    // Match all selected IDs, then set the new status
-    const result = await Job.updateMany(
-      { _id: { $in: req.body.ids } },
-      { status: req.body.status },
-    );
+    const { ids, status } = req.body;
 
-    res.send(result); // Return update result
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ error: 'ids must be a non-empty array' });
+    }
+
+    if (!STATUSES.includes(status)) {
+      return res
+        .status(400)
+        .json({ error: `status must be one of: ${STATUSES.join(', ')}` });
+    }
+
+    const result = await Job.updateMany({ _id: { $in: ids } }, { status });
+    res.json({ matched: result.matchedCount, modified: result.modifiedCount });
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Batch update error');
+    sendError(res, err, 'Batch update error');
   }
 };
 
 // ARCHIVE JOB (soft delete)
 exports.archiveJob = async (req, res) => {
   try {
-    // Mark job as archived instead of deleting
     const job = await Job.findByIdAndUpdate(
       req.params.id,
       { archived: true },
-      { new: true },
+      { returnDocument: 'after' },
     );
 
-    res.send(job); // Send archived job
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    res.json(job);
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Archive error');
+    sendError(res, err, 'Archive error');
   }
 };
 
 // FILTER JOBS BY STATUS
 exports.filterByStatus = async (req, res) => {
   try {
-    // Find jobs with matching status
-    // Show newest jobs first
-    const jobs = await Job.find({
-      status: req.params.status,
-      archived: false,
-    }).sort({
+    const { status } = req.params;
+
+    if (!STATUSES.includes(status)) {
+      return res
+        .status(400)
+        .json({ error: `status must be one of: ${STATUSES.join(', ')}` });
+    }
+
+    const jobs = await Job.find({ status, archived: false }).sort({
       createdAt: -1,
     });
 
-    res.send(jobs); // Return filtered jobs
+    res.json(jobs);
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Filter error');
+    sendError(res, err, 'Filter error');
   }
 };
