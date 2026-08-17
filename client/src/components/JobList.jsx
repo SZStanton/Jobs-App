@@ -7,7 +7,12 @@ function JobList({
   handleCheckboxChange,
   updateJobStatus,
   archiveJob,
+  emptyMessage,
 }) {
+  if (jobs.length === 0) {
+    return <p className="jobs-empty">{emptyMessage}</p>;
+  }
+
   return (
     <div className="jobs-list">
       {/* Map each job to a card, keyed by job ID */}

@@ -1,5 +1,10 @@
 // Batch update selected jobs
-function BatchUpdate({ batchStatus, setBatchStatus, batchUpdateJobs }) {
+function BatchUpdate({
+  batchStatus,
+  setBatchStatus,
+  batchUpdateJobs,
+  selectedCount,
+}) {
   return (
     <div className="batch-section">
       <h3>Batch Update Status</h3>
@@ -14,8 +19,13 @@ function BatchUpdate({ batchStatus, setBatchStatus, batchUpdateJobs }) {
         <option value="completed">Completed</option>
       </select>
 
-      {/* Apply batch status to selected jobs */}
-      <button onClick={batchUpdateJobs}>Update Selected Jobs</button>
+      {/* Apply batch status to selected jobs. Disabled with nothing selected,
+          since the request would match nothing and look like a no-op */}
+      <button onClick={batchUpdateJobs} disabled={selectedCount === 0}>
+        {selectedCount === 0
+          ? 'Update Selected Jobs'
+          : `Update ${selectedCount} Selected`}
+      </button>
     </div>
   );
 }
