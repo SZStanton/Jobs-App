@@ -7,10 +7,13 @@ function JobList({
   handleCheckboxChange,
   updateJobStatus,
   archiveJob,
+  restoreJob,
+  deleteJob,
   emptyMessage,
 }) {
   if (jobs.length === 0) {
-    return <p className="jobs-empty">{emptyMessage}</p>;
+    // No message means a load failed, and the error banner already says so
+    return emptyMessage ? <p className="jobs-empty">{emptyMessage}</p> : null;
   }
 
   return (
@@ -24,6 +27,8 @@ function JobList({
           handleCheckboxChange={handleCheckboxChange}
           updateJobStatus={updateJobStatus}
           archiveJob={archiveJob}
+          restoreJob={restoreJob}
+          deleteJob={deleteJob}
         />
       ))}
     </div>
