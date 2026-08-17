@@ -1,16 +1,20 @@
 // Overdue is worked out on the fly rather than stored, so it stays true
 // without anything having to run on a schedule
 function isOverdue(job) {
-  if (!job.dueDate || job.status === 'completed') return false;
+  if (!job.dueDate || job.archived || job.status === 'completed') return false;
 
-  // Compared at day granularity, so something due today is not yet late
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return new Date(job.dueDate) < today;
+  // A date-only value is stored as UTC midnight, so today has to be turned
+  // into the same thing or anyone behind UTC is a day out
+  const now = new Date();
+  const todayUTC = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  return new Date(job.dueDate).getTime() < todayUTC;
 }
 
 function formatDate(value) {
   return new Date(value).toLocaleDateString(undefined, {
+    // Read back in UTC for the same reason it is stored that way. Without this
+    // a date shows as the day before for anyone west of UTC
+    timeZone: 'UTC',
     day: 'numeric',
     month: 'short',
     year: 'numeric',

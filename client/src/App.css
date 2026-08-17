@@ -119,6 +119,13 @@ button:disabled:active {
   font-size: 14px;
 }
 
+/* The input must not inherit the label's smaller size. Under 16px, iOS zooms
+   the page in on focus. The tighter margin keeps the pair looking like one field */
+.field-label input {
+  margin-top: 4px;
+  font-size: 16px;
+}
+
 .loading,
 .jobs-empty {
   color: var(--text-muted);
