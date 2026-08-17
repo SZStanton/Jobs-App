@@ -1,9 +1,3 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-}
-
 .container {
   width: 90%;
   max-width: 1000px;
@@ -11,22 +5,21 @@ body {
   padding: 20px;
 }
 
-h1 {
-  text-align: center;
-}
-
 /* Card style for form, filter and batch sections */
 .job-form,
 .filter-section,
 .batch-section {
-  background: white;
-  padding: 20px;
-  margin-bottom: 20px;
-  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--gap);
+  margin-bottom: var(--gap);
 }
 
 /* Full-width inputs and buttons in form, filter and batch sections */
 .job-form input,
+.job-form select,
 .job-form button,
 .filter-section select,
 .batch-section select,
@@ -34,19 +27,22 @@ h1 {
   width: 100%;
   padding: 10px;
   margin-top: 10px;
+  box-sizing: border-box;
 }
 
 /* Job list grid */
 .jobs-list {
   display: grid;
-  gap: 20px;
+  gap: var(--gap);
 }
 
 /* Individual job card */
 .job-card {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--gap);
 }
 
 /* Full width controls inside each job card */
@@ -55,4 +51,58 @@ h1 {
   width: 100%;
   padding: 10px;
   margin-top: 10px;
+  box-sizing: border-box;
+}
+
+/* Shared control styling. Colour comes from tokens so both themes follow */
+input,
+select,
+button {
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+button {
+  background: var(--accent);
+  color: var(--on-accent);
+  cursor: pointer;
+}
+
+/* Touchscreens fire active on press, so every hover needs a matching active */
+button:hover,
+button:active {
+  background: var(--accent-hover);
+}
+
+button:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+button:disabled:hover,
+button:disabled:active {
+  background: var(--accent);
+}
+
+.view-toggle {
+  padding: 8px 16px;
+  margin-bottom: var(--gap);
+}
+
+.error-banner {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--text-strong);
+  border-radius: var(--radius);
+  padding: 12px var(--gap);
+  margin-bottom: var(--gap);
+}
+
+.loading,
+.jobs-empty {
+  color: var(--text-muted);
+  padding: var(--gap) 0;
 }
