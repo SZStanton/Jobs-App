@@ -12,6 +12,11 @@ import BatchUpdate from './components/BatchUpdate';
 // clone runs with no .env
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
+// The api sends { error: 'message' }, but a dead server never gets that far
+function readError(error, fallback) {
+  return error.response?.data?.error || error.message || fallback;
+}
+
 function App() {
   // Full Job list
   const [jobs, setJobs] = useState([]);
@@ -21,14 +26,22 @@ function App() {
   const [selectedJobs, setSelectedJobs] = useState([]);
   // Status applied on batch update
   const [batchStatus, setBatchStatus] = useState('submitted');
+  // Whatever went wrong last, shown at the top of the page
+  const [error, setError] = useState(null);
+  // Only covers the first load, not every refetch
+  const [loading, setLoading] = useState(true);
 
   // Fetch all jobs - GET
   const fetchJobs = async () => {
     try {
       const { data } = await axios.get(`${API_URL}/jobs`);
       setJobs(data);
-    } catch (error) {
-      console.log(error);
+      // Drop selections whose job has been archived or deleted elsewhere,
+      // otherwise a batch update targets ids that are no longer on screen
+      setSelectedJobs(prev => prev.filter(id => data.some(j => j._id === id)));
+      setError(null);
+    } catch (err) {
+      setError(readError(err, 'Could not load jobs'));
     }
   };
 
@@ -37,8 +50,8 @@ function App() {
     try {
       await axios.post(`${API_URL}/jobs`, jobData);
       await fetchJobs();
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      setError(readError(err, 'Could not create job'));
     }
   };
 
@@ -47,8 +60,8 @@ function App() {
     try {
       await axios.put(`${API_URL}/jobs/${id}`, { status });
       await fetchJobs();
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      setError(readError(err, 'Could not update job'));
     }
   };
 
@@ -57,18 +70,16 @@ function App() {
     try {
       await axios.put(`${API_URL}/jobs/${id}/archive`);
       await fetchJobs();
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      setError(readError(err, 'Could not archive job'));
     }
   };
 
   // Handle checkbox selection
   const handleCheckboxChange = id => {
-    if (selectedJobs.includes(id)) {
-      setSelectedJobs(selectedJobs.filter(jobId => jobId !== id));
-    } else {
-      setSelectedJobs([...selectedJobs, id]);
-    }
+    setSelectedJobs(prev =>
+      prev.includes(id) ? prev.filter(jobId => jobId !== id) : [...prev, id],
+    );
   };
 
   // Batch update selected jobs - PUT
@@ -81,8 +92,8 @@ function App() {
 
       setSelectedJobs([]);
       await fetchJobs();
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      setError(readError(err, 'Could not update the selected jobs'));
     }
   };
 
@@ -92,10 +103,17 @@ function App() {
       ? jobs
       : jobs.filter(job => job.status === filterStatus);
 
+  // Nothing to show can mean two different things, so say which
+  const emptyMessage =
+    jobs.length === 0
+      ? 'No jobs yet. Submit one above to get started.'
+      : `No jobs with the status "${filterStatus}".`;
+
   // Load jobs
   useEffect(() => {
     const loadJobs = async () => {
       await fetchJobs();
+      setLoading(false);
     };
     loadJobs();
   }, []);
@@ -103,6 +121,12 @@ function App() {
   return (
     <div className="container">
       <h1>Maintenance Management App</h1>
+
+      {error && (
+        <p className="error-banner" role="alert">
+          {error}
+        </p>
+      )}
 
       <JobForm createJob={createJob} />
 
@@ -115,15 +139,24 @@ function App() {
         batchStatus={batchStatus}
         setBatchStatus={setBatchStatus}
         batchUpdateJobs={batchUpdateJobs}
+        selectedCount={selectedJobs.length}
       />
 
-      <JobList
-        jobs={filteredJobs}
-        selectedJobs={selectedJobs}
-        handleCheckboxChange={handleCheckboxChange}
-        updateJobStatus={updateJobStatus}
-        archiveJob={archiveJob}
-      />
+      {loading ? (
+        // The free tier sleeps after 15 minutes, so the first load can be slow
+        <p className="loading">
+          Loading jobs. Waking the server can take a minute.
+        </p>
+      ) : (
+        <JobList
+          jobs={filteredJobs}
+          selectedJobs={selectedJobs}
+          handleCheckboxChange={handleCheckboxChange}
+          updateJobStatus={updateJobStatus}
+          archiveJob={archiveJob}
+          emptyMessage={emptyMessage}
+        />
+      )}
     </div>
   );
 }
