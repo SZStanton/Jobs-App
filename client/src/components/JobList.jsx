@@ -7,6 +7,8 @@ function JobList({
   handleCheckboxChange,
   updateJobStatus,
   archiveJob,
+  restoreJob,
+  deleteJob,
   emptyMessage,
 }) {
   if (jobs.length === 0) {
@@ -24,6 +26,8 @@ function JobList({
           handleCheckboxChange={handleCheckboxChange}
           updateJobStatus={updateJobStatus}
           archiveJob={archiveJob}
+          restoreJob={restoreJob}
+          deleteJob={deleteJob}
         />
       ))}
     </div>

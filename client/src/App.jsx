@@ -30,6 +30,9 @@ function App() {
   const [error, setError] = useState(null);
   // Only covers the first load, not every refetch
   const [loading, setLoading] = useState(true);
+  // Archived jobs live behind a toggle, kept separate from the main list
+  const [archivedJobs, setArchivedJobs] = useState([]);
+  const [showArchived, setShowArchived] = useState(false);
 
   // Fetch all jobs - GET
   const fetchJobs = async () => {
@@ -65,13 +68,56 @@ function App() {
     }
   };
 
+  // Fetch archived jobs - GET
+  const fetchArchivedJobs = async () => {
+    try {
+      const { data } = await axios.get(`${API_URL}/jobs/archived`);
+      setArchivedJobs(data);
+      setError(null);
+    } catch (err) {
+      setError(readError(err, 'Could not load archived jobs'));
+    }
+  };
+
+  // Both lists change whenever a job moves between them. In parallel, since
+  // waking a sleeping server twice in a row is a long wait
+  const refreshBothLists = async () => {
+    await Promise.all([fetchJobs(), fetchArchivedJobs()]);
+  };
+
   // Archive single job - PUT
   const archiveJob = async id => {
     try {
       await axios.put(`${API_URL}/jobs/${id}/archive`);
-      await fetchJobs();
+      await refreshBothLists();
     } catch (err) {
       setError(readError(err, 'Could not archive job'));
+    }
+  };
+
+  // Restore a job out of the archive - PUT
+  const restoreJob = async id => {
+    try {
+      await axios.put(`${API_URL}/jobs/${id}/restore`);
+      await refreshBothLists();
+    } catch (err) {
+      setError(readError(err, 'Could not restore job'));
+    }
+  };
+
+  // Delete a job for good - DELETE
+  const deleteJob = async id => {
+    if (
+      !window.confirm('Delete this job permanently? This cannot be undone.')
+    ) {
+      return;
+    }
+
+    try {
+      await axios.delete(`${API_URL}/jobs/${id}`);
+      await fetchArchivedJobs();
+    } catch (err) {
+      setError(readError(err, 'Could not delete job'));
     }
   };
 
@@ -109,13 +155,18 @@ function App() {
       ? 'No jobs yet. Submit one above to get started.'
       : `No jobs with the status "${filterStatus}".`;
 
+  const archivedEmptyMessage = 'Nothing archived yet.';
+
   // Load jobs
   useEffect(() => {
     const loadJobs = async () => {
-      await fetchJobs();
+      await refreshBothLists();
       setLoading(false);
     };
     loadJobs();
+    // Mount only. The fetchers are recreated every render, so listing them
+    // here would refetch forever
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -128,19 +179,32 @@ function App() {
         </p>
       )}
 
-      <JobForm createJob={createJob} />
+      <button
+        className="view-toggle"
+        onClick={() => setShowArchived(prev => !prev)}
+      >
+        {showArchived
+          ? 'Back to Active Jobs'
+          : `View Archive (${archivedJobs.length})`}
+      </button>
 
-      <FilterJobs
-        filterStatus={filterStatus}
-        setFilterStatus={setFilterStatus}
-      />
+      {!showArchived && (
+        <>
+          <JobForm createJob={createJob} />
 
-      <BatchUpdate
-        batchStatus={batchStatus}
-        setBatchStatus={setBatchStatus}
-        batchUpdateJobs={batchUpdateJobs}
-        selectedCount={selectedJobs.length}
-      />
+          <FilterJobs
+            filterStatus={filterStatus}
+            setFilterStatus={setFilterStatus}
+          />
+
+          <BatchUpdate
+            batchStatus={batchStatus}
+            setBatchStatus={setBatchStatus}
+            batchUpdateJobs={batchUpdateJobs}
+            selectedCount={selectedJobs.length}
+          />
+        </>
+      )}
 
       {loading ? (
         // The free tier sleeps after 15 minutes, so the first load can be slow
@@ -149,12 +213,14 @@ function App() {
         </p>
       ) : (
         <JobList
-          jobs={filteredJobs}
+          jobs={showArchived ? archivedJobs : filteredJobs}
           selectedJobs={selectedJobs}
           handleCheckboxChange={handleCheckboxChange}
           updateJobStatus={updateJobStatus}
           archiveJob={archiveJob}
-          emptyMessage={emptyMessage}
+          restoreJob={restoreJob}
+          deleteJob={deleteJob}
+          emptyMessage={showArchived ? archivedEmptyMessage : emptyMessage}
         />
       )}
     </div>
