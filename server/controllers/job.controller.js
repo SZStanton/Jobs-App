@@ -5,13 +5,16 @@ const STATUSES = Job.schema.path('status').enumValues;
 
 // Fields a client is allowed to set. Anything else in the body is dropped, so
 // nobody can flip 'archived' or backdate 'createdAt' through a normal update
-const EDITABLE = ['description', 'location', 'priority', 'status'];
+const EDITABLE = ['description', 'location', 'priority', 'status', 'dueDate'];
 
 function pickEditable(body = {}) {
   const fields = {};
   for (const key of EDITABLE) {
     if (body[key] !== undefined) fields[key] = body[key];
   }
+  // An empty date field means "no due date". Mongoose ignores undefined on an
+  // update, so it has to be null or the old date stays put
+  if (fields.dueDate === '') fields.dueDate = null;
   return fields;
 }
 

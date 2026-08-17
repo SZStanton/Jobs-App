@@ -101,6 +101,31 @@ button:disabled:active {
   margin-bottom: var(--gap);
 }
 
+.badge-overdue {
+  background: var(--danger-bg);
+  color: var(--on-danger);
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-left: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Stacks the label above its input, unlike the placeholder-only fields */
+.field-label {
+  display: block;
+  margin-top: 10px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* The input must not inherit the label's smaller size. Under 16px, iOS zooms
+   the page in on focus. The tighter margin keeps the pair looking like one field */
+.field-label input {
+  margin-top: 4px;
+  font-size: 16px;
+}
+
 .loading,
 .jobs-empty {
   color: var(--text-muted);

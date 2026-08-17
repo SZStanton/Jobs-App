@@ -5,6 +5,7 @@ function JobForm({ createJob }) {
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
   const [priority, setPriority] = useState('');
+  const [dueDate, setDueDate] = useState('');
 
   // Handles form submission
   const handleSubmit = event => {
@@ -14,10 +15,12 @@ function JobForm({ createJob }) {
       description,
       location,
       priority,
+      dueDate,
     });
     setDescription('');
     setLocation('');
     setPriority('');
+    setDueDate('');
   };
 
   return (
@@ -51,6 +54,17 @@ function JobForm({ createJob }) {
         <option value="medium">Medium</option>
         <option value="high">High</option>
       </select>
+
+      {/* Optional, so no 'required'. A date input with no value posts '' */}
+      <label className="field-label">
+        Due date (optional)
+        <input
+          type="date"
+          value={dueDate}
+          onChange={e => setDueDate(e.target.value)}
+        />
+      </label>
+
       <button type="submit">Submit Job</button>
     </form>
   );

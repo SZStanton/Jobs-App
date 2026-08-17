@@ -25,6 +25,11 @@ const JobSchema = new mongoose.Schema({
     enum: ['submitted', 'in-progress', 'completed'], // Only status values allowed
     default: 'submitted', // default status
   },
+  // When the job is due. Optional, since plenty of jobs are just "sometime"
+  dueDate: {
+    type: Date,
+    default: null,
+  },
   // Archive jobs instead of deleting
   archived: {
     type: Boolean,

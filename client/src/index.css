@@ -16,6 +16,11 @@
   --accent-hover: #f4f4f5;
   --on-accent: #18181b;
 
+  /* Overdue. Pale fill with dark text in light, the reverse in dark, so the
+     badge stays visible against the card either way */
+  --danger-bg: #fee2e2;
+  --on-danger: #991b1b;
+
   /* Light needs shadow for depth because the page is already near white */
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.1);
 
@@ -43,6 +48,9 @@
     --accent: #3f3f46;
     --accent-hover: #52525b;
     --on-accent: #fafafa;
+
+    --danger-bg: #991b1b;
+    --on-danger: #fecaca;
 
     /* Dark separates surfaces by making them lighter, so no shadow needed */
     --shadow: none;
