@@ -101,6 +101,24 @@ button:disabled:active {
   margin-bottom: var(--gap);
 }
 
+.badge-overdue {
+  background: var(--danger-bg);
+  color: var(--on-danger);
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-left: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Stacks the label above its input, unlike the placeholder-only fields */
+.field-label {
+  display: block;
+  margin-top: 10px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
 .loading,
 .jobs-empty {
   color: var(--text-muted);

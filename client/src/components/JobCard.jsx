@@ -1,3 +1,22 @@
+// Overdue is worked out on the fly rather than stored, so it stays true
+// without anything having to run on a schedule
+function isOverdue(job) {
+  if (!job.dueDate || job.status === 'completed') return false;
+
+  // Compared at day granularity, so something due today is not yet late
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return new Date(job.dueDate) < today;
+}
+
+function formatDate(value) {
+  return new Date(value).toLocaleDateString(undefined, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
 // Single job card. Archived jobs get restore and delete instead of the
 // status controls, since nothing about them should still be editable
 function JobCard({
@@ -21,6 +40,12 @@ function JobCard({
       <p>
         <strong>Status:</strong> {job.status}
       </p>
+      {job.dueDate && (
+        <p>
+          <strong>Due:</strong> {formatDate(job.dueDate)}
+          {isOverdue(job) && <span className="badge-overdue">Overdue</span>}
+        </p>
+      )}
     </>
   );
 
