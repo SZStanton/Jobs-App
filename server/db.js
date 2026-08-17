@@ -1,16 +1,28 @@
 const mongoose = require('mongoose');
 
-// MongoDB connection string, connect to MongoDB
-const uri = 'mongodb://127.0.0.1:27017/maintenance_db';
-mongoose.connect(uri);
+// Connects to mongo and resolves once open. Kept out of app.js so the app can
+// be imported without opening a connection
+async function connectDB() {
+  const uri = process.env.MONGODB_URI;
 
-// Handle connection errors
-mongoose.connection.on('error', function () {
-  console.log('Could not connect to database');
-  process.exit();
-});
+  if (!uri) {
+    console.error('MONGODB_URI is not set. Copy server/.env.example to .env');
+    process.exit(1);
+  }
 
-// Run once connection successful
-mongoose.connection.once('open', function () {
-  console.log('Connected to MongoDB');
-});
+  try {
+    await mongoose.connect(uri);
+    console.log('Connected to MongoDB');
+  } catch (err) {
+    console.error('Could not connect to MongoDB:', err.message);
+    process.exit(1);
+  }
+
+  // Later errors are usually transient and mongoose reconnects itself, so log
+  // them rather than killing a running server
+  mongoose.connection.on('error', err => {
+    console.error('MongoDB error:', err.message);
+  });
+}
+
+module.exports = connectDB;
