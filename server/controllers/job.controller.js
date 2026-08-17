@@ -141,13 +141,17 @@ exports.restoreJob = async (req, res) => {
   }
 };
 
-// DELETE JOB (permanent, no way back)
+// DELETE JOB (permanent, no way back). Archived only, so a live job cannot be
+// destroyed by calling this directly. The UI hiding the button is not a rule
 exports.deleteJob = async (req, res) => {
   try {
-    const job = await Job.findByIdAndDelete(req.params.id);
+    const job = await Job.findOneAndDelete({
+      _id: req.params.id,
+      archived: true,
+    });
 
     if (!job) {
-      return res.status(404).json({ error: 'Job not found' });
+      return res.status(404).json({ error: 'No archived job with that id' });
     }
 
     res.json({ deleted: job._id });

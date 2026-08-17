@@ -42,7 +42,6 @@ function App() {
       // Drop selections whose job has been archived or deleted elsewhere,
       // otherwise a batch update targets ids that are no longer on screen
       setSelectedJobs(prev => prev.filter(id => data.some(j => j._id === id)));
-      setError(null);
     } catch (err) {
       setError(readError(err, 'Could not load jobs'));
     }
@@ -50,6 +49,7 @@ function App() {
 
   // Create new job - POST
   const createJob = async jobData => {
+    setError(null);
     try {
       await axios.post(`${API_URL}/jobs`, jobData);
       await fetchJobs();
@@ -60,6 +60,7 @@ function App() {
 
   // Update single job status - PUT
   const updateJobStatus = async (id, status) => {
+    setError(null);
     try {
       await axios.put(`${API_URL}/jobs/${id}`, { status });
       await fetchJobs();
@@ -73,7 +74,6 @@ function App() {
     try {
       const { data } = await axios.get(`${API_URL}/jobs/archived`);
       setArchivedJobs(data);
-      setError(null);
     } catch (err) {
       setError(readError(err, 'Could not load archived jobs'));
     }
@@ -87,6 +87,7 @@ function App() {
 
   // Archive single job - PUT
   const archiveJob = async id => {
+    setError(null);
     try {
       await axios.put(`${API_URL}/jobs/${id}/archive`);
       await refreshBothLists();
@@ -97,6 +98,7 @@ function App() {
 
   // Restore a job out of the archive - PUT
   const restoreJob = async id => {
+    setError(null);
     try {
       await axios.put(`${API_URL}/jobs/${id}/restore`);
       await refreshBothLists();
@@ -113,11 +115,15 @@ function App() {
       return;
     }
 
+    setError(null);
     try {
       await axios.delete(`${API_URL}/jobs/${id}`);
-      await fetchArchivedJobs();
     } catch (err) {
       setError(readError(err, 'Could not delete job'));
+    } finally {
+      // Refetch either way. A failed delete usually means someone else got
+      // there first, so the stale card needs clearing off the screen
+      await fetchArchivedJobs();
     }
   };
 
@@ -130,6 +136,7 @@ function App() {
 
   // Batch update selected jobs - PUT
   const batchUpdateJobs = async () => {
+    setError(null);
     try {
       await axios.put(`${API_URL}/jobs/batch/update`, {
         ids: selectedJobs,
@@ -149,13 +156,15 @@ function App() {
       ? jobs
       : jobs.filter(job => job.status === filterStatus);
 
-  // Nothing to show can mean two different things, so say which
-  const emptyMessage =
-    jobs.length === 0
+  // Nothing to show can mean two different things, so say which. When a load
+  // has failed the list is empty for a third reason, and the banner covers it
+  const emptyMessage = error
+    ? null
+    : jobs.length === 0
       ? 'No jobs yet. Submit one above to get started.'
       : `No jobs with the status "${filterStatus}".`;
 
-  const archivedEmptyMessage = 'Nothing archived yet.';
+  const archivedEmptyMessage = error ? null : 'Nothing archived yet.';
 
   // Load jobs
   useEffect(() => {
