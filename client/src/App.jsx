@@ -22,6 +22,8 @@ function App() {
   const [jobs, setJobs] = useState([]);
   // Active filter, default 'all'
   const [filterStatus, setFilterStatus] = useState('all');
+  // Keyword typed into the search box
+  const [search, setSearch] = useState('');
   // Job IDs checked for batch action
   const [selectedJobs, setSelectedJobs] = useState([]);
   // Status applied on batch update
@@ -150,19 +152,35 @@ function App() {
     }
   };
 
-  // Filter jobs by status, default 'all'
-  const filteredJobs =
-    filterStatus === 'all'
-      ? jobs
-      : jobs.filter(job => job.status === filterStatus);
+  // Status and keyword narrow the list together, both in memory. The list is
+  // small enough that a round trip per keystroke would be the slower option
+  const term = search.trim().toLowerCase();
+  const filteredJobs = jobs.filter(job => {
+    const matchesStatus = filterStatus === 'all' || job.status === filterStatus;
+    const matchesTerm =
+      term === '' ||
+      job.description.toLowerCase().includes(term) ||
+      job.location.toLowerCase().includes(term);
 
-  // Nothing to show can mean two different things, so say which. When a load
-  // has failed the list is empty for a third reason, and the banner covers it
-  const emptyMessage = error
-    ? null
-    : jobs.length === 0
-      ? 'No jobs yet. Submit one above to get started.'
-      : `No jobs with the status "${filterStatus}".`;
+    return matchesStatus && matchesTerm;
+  });
+
+  // An empty list means several different things, so say which one. A failed
+  // load is a fourth reason, and the error banner already covers that
+  function activeEmptyMessage() {
+    if (error) return null;
+    if (jobs.length === 0) {
+      return 'No jobs yet. Submit one above to get started.';
+    }
+    // Both can be narrowing at once, and blaming only one of them is a lie
+    if (term && filterStatus !== 'all') {
+      return `No "${filterStatus}" jobs match "${search.trim()}".`;
+    }
+    if (term) return `No jobs match "${search.trim()}".`;
+    return `No jobs with the status "${filterStatus}".`;
+  }
+
+  const emptyMessage = activeEmptyMessage();
 
   const archivedEmptyMessage = error ? null : 'Nothing archived yet.';
 
@@ -204,6 +222,8 @@ function App() {
           <FilterJobs
             filterStatus={filterStatus}
             setFilterStatus={setFilterStatus}
+            search={search}
+            setSearch={setSearch}
           />
 
           <BatchUpdate

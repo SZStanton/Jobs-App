@@ -21,6 +21,7 @@
 .job-form input,
 .job-form select,
 .job-form button,
+.filter-section input,
 .filter-section select,
 .batch-section select,
 .batch-section button {
@@ -121,7 +122,8 @@ button:disabled:active {
 
 /* The input must not inherit the label's smaller size. Under 16px, iOS zooms
    the page in on focus. The tighter margin keeps the pair looking like one field */
-.field-label input {
+.field-label input,
+.field-label select {
   margin-top: 4px;
   font-size: 16px;
 }
