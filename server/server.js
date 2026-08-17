@@ -2,6 +2,7 @@
 // no matter which directory the process was started from
 require('dotenv').config({
   path: require('node:path').join(__dirname, '.env'),
+  quiet: true,
 });
 
 const app = require('./app');
