@@ -114,24 +114,3 @@ exports.archiveJob = async (req, res) => {
     sendError(res, err, 'Archive error');
   }
 };
-
-// FILTER JOBS BY STATUS
-exports.filterByStatus = async (req, res) => {
-  try {
-    const { status } = req.params;
-
-    if (!STATUSES.includes(status)) {
-      return res
-        .status(400)
-        .json({ error: `status must be one of: ${STATUSES.join(', ')}` });
-    }
-
-    const jobs = await Job.find({ status, archived: false }).sort({
-      createdAt: -1,
-    });
-
-    res.json(jobs);
-  } catch (err) {
-    sendError(res, err, 'Filter error');
-  }
-};
