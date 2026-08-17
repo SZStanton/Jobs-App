@@ -22,6 +22,8 @@ function App() {
   const [jobs, setJobs] = useState([]);
   // Active filter, default 'all'
   const [filterStatus, setFilterStatus] = useState('all');
+  // Keyword typed into the search box
+  const [search, setSearch] = useState('');
   // Job IDs checked for batch action
   const [selectedJobs, setSelectedJobs] = useState([]);
   // Status applied on batch update
@@ -139,7 +141,7 @@ function App() {
     setError(null);
     try {
       await axios.put(`${API_URL}/jobs/batch/update`, {
-        ids: selectedJobs,
+        ids: visibleSelectedIds,
         status: batchStatus,
       });
 
@@ -150,19 +152,42 @@ function App() {
     }
   };
 
-  // Filter jobs by status, default 'all'
-  const filteredJobs =
-    filterStatus === 'all'
-      ? jobs
-      : jobs.filter(job => job.status === filterStatus);
+  // Status and keyword narrow the list together, both in memory. The list is
+  // small enough that a round trip per keystroke would be the slower option
+  const term = search.trim().toLowerCase();
+  const filteredJobs = jobs.filter(job => {
+    const matchesStatus = filterStatus === 'all' || job.status === filterStatus;
+    const matchesTerm =
+      term === '' ||
+      job.description.toLowerCase().includes(term) ||
+      job.location.toLowerCase().includes(term);
 
-  // Nothing to show can mean two different things, so say which. When a load
-  // has failed the list is empty for a third reason, and the banner covers it
-  const emptyMessage = error
-    ? null
-    : jobs.length === 0
-      ? 'No jobs yet. Submit one above to get started.'
-      : `No jobs with the status "${filterStatus}".`;
+    return matchesStatus && matchesTerm;
+  });
+
+  // Only act on what is actually on screen. Filtering hides jobs without
+  // deselecting them, and a batch must not touch anything the user cannot see
+  const visibleSelectedIds = selectedJobs.filter(id =>
+    filteredJobs.some(job => job._id === id),
+  );
+
+  // An empty list means several different things, so say which one
+  function activeEmptyMessage() {
+    if (jobs.length === 0) {
+      // A failed first load leaves this empty too, and the banner covers that.
+      // Checked here rather than up front, since a failed archive or delete
+      // also sets error and must not blank out the filter message
+      return error ? null : 'No jobs yet. Submit one above to get started.';
+    }
+    // Both can be narrowing at once, and blaming only one of them is a lie
+    if (term && filterStatus !== 'all') {
+      return `No "${filterStatus}" jobs match "${search.trim()}".`;
+    }
+    if (term) return `No jobs match "${search.trim()}".`;
+    return `No jobs with the status "${filterStatus}".`;
+  }
+
+  const emptyMessage = activeEmptyMessage();
 
   const archivedEmptyMessage = error ? null : 'Nothing archived yet.';
 
@@ -204,13 +229,15 @@ function App() {
           <FilterJobs
             filterStatus={filterStatus}
             setFilterStatus={setFilterStatus}
+            search={search}
+            setSearch={setSearch}
           />
 
           <BatchUpdate
             batchStatus={batchStatus}
             setBatchStatus={setBatchStatus}
             batchUpdateJobs={batchUpdateJobs}
-            selectedCount={selectedJobs.length}
+            selectedCount={visibleSelectedIds.length}
           />
         </>
       )}
