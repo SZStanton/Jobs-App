@@ -15,6 +15,11 @@ function pickEditable(body = {}) {
   return fields;
 }
 
+// Archive and restore are the same write with the flag flipped
+function setArchived(id, archived) {
+  return Job.findByIdAndUpdate(id, { archived }, { returnDocument: 'after' });
+}
+
 // Mongoose throws these for bad input, which is the client's fault, not a 500
 function sendError(res, err, fallback) {
   if (err.name === 'ValidationError') {
@@ -96,14 +101,20 @@ exports.batchUpdateStatus = async (req, res) => {
   }
 };
 
+// GET ARCHIVED JOBS
+exports.getArchivedJobs = async (req, res) => {
+  try {
+    const jobs = await Job.find({ archived: true }).sort({ createdAt: -1 });
+    res.json(jobs);
+  } catch (err) {
+    sendError(res, err, 'Error fetching archived jobs');
+  }
+};
+
 // ARCHIVE JOB (soft delete)
 exports.archiveJob = async (req, res) => {
   try {
-    const job = await Job.findByIdAndUpdate(
-      req.params.id,
-      { archived: true },
-      { returnDocument: 'after' },
-    );
+    const job = await setArchived(req.params.id, true);
 
     if (!job) {
       return res.status(404).json({ error: 'Job not found' });
@@ -112,5 +123,35 @@ exports.archiveJob = async (req, res) => {
     res.json(job);
   } catch (err) {
     sendError(res, err, 'Archive error');
+  }
+};
+
+// RESTORE JOB (back out of the archive)
+exports.restoreJob = async (req, res) => {
+  try {
+    const job = await setArchived(req.params.id, false);
+
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    res.json(job);
+  } catch (err) {
+    sendError(res, err, 'Restore error');
+  }
+};
+
+// DELETE JOB (permanent, no way back)
+exports.deleteJob = async (req, res) => {
+  try {
+    const job = await Job.findByIdAndDelete(req.params.id);
+
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    res.json({ deleted: job._id });
+  } catch (err) {
+    sendError(res, err, 'Delete error');
   }
 };
