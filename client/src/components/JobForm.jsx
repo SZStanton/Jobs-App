@@ -38,13 +38,19 @@ function JobForm({ createJob }) {
         required
       />
 
-      <input
-        type="text"
-        placeholder="Priority"
+      {/* Empty default keeps 'required' meaningful, so priority is a choice */}
+      <select
         value={priority}
         onChange={e => setPriority(e.target.value)}
         required
-      />
+      >
+        <option value="" disabled>
+          Priority
+        </option>
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
       <button type="submit">Submit Job</button>
     </form>
   );
