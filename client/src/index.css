@@ -1,34 +1,100 @@
 /* Every colour in the app lives here and nowhere else. Components name tokens,
-   never colours, because the palette changes often */
+   never colours, because the palette changes often.
+
+   Direction: industrial site notice. Amber carries status and urgency and
+   nothing else. If amber is one of the first things you notice, it is too much. */
+
 :root {
-  --bg: #f4f4f5;
+  --bg: #f5f4f1;
   --surface: #ffffff;
-  --border: #e4e4e7;
-  --text: #3f3f46;
-  --text-strong: #18181b;
-  /* Darker than it looks like it needs to be. The zinc-500 above it passes on
-     a white card and fails on the page, which is a shade darker */
-  --text-muted: #6b6b74;
+  --border: #e0ddd7;
 
-  /* Placeholders until the palette is chosen. Deliberately neutral so nothing
-     reads as a decision that has already been made */
-  --accent: #e4e4e7;
-  --accent-hover: #f4f4f5;
-  --on-accent: #18181b;
+  --text: #3f3b36;
+  --text-strong: #1c1b19;
+  --text-muted: #6b655c;
 
-  /* Overdue. Pale fill with dark text in light, the reverse in dark, so the
-     badge stays visible against the card either way */
-  --danger-bg: #fee2e2;
-  --on-danger: #991b1b;
+  /* Two accent values. The fill is pale enough to need dark text, so anything
+     that has to sit on the page as text uses the deep one instead */
+  --accent: #f59e0b;
+  --accent-deep: #b45309;
+  --on-accent: #1c1b19;
+
+  /* A pale amber tint rather than a saturated fill, so the main action is
+     findable without pulling the eye off the status colours */
+  --primary: #eeba77;
+  --primary-hover: #fad49e;
+  --on-primary: #523a1b;
+
+  --danger-bg: #fde8e4;
+  --on-danger: #9a2c1a;
+  --ok-bg: #e7f0e4;
+  --on-ok: #2f5227;
 
   /* Light needs shadow for depth because the page is already near white */
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow: 0 1px 2px rgba(28, 27, 25, 0.05), 0 1px 3px rgba(28, 27, 25, 0.08);
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --radius: 6px;
+  --gap: 16px;
+}
 
-  --radius: 8px;
-  --gap: 20px;
+/* System preference, unless a theme has been picked explicitly */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #1c1b19;
+    --surface: #292725;
+    --border: #3d3a36;
 
+    --text: #d6d1ca;
+    --text-strong: #faf8f5;
+    --text-muted: #a29b91;
+
+    --accent: #f59e0b;
+    --accent-deep: #fbbf24;
+    --on-accent: #1c1b19;
+
+    /* Same idea inverted: a muted amber, well short of the bright accent */
+    --primary: #63491f;
+    --primary-hover: #705224;
+    --on-primary: #f7e3c2;
+
+    --danger-bg: #7a2718;
+    --on-danger: #fcd9d1;
+    --ok-bg: #2c4526;
+    --on-ok: #cfe3c9;
+
+    /* Dark separates surfaces by making them lighter, so no shadow needed */
+    --shadow: none;
+  }
+}
+
+/* The toggle wins over the system preference in both directions */
+:root[data-theme='dark'] {
+  --bg: #1c1b19;
+  --surface: #292725;
+  --border: #3d3a36;
+
+  --text: #d6d1ca;
+  --text-strong: #faf8f5;
+  --text-muted: #a29b91;
+
+  --accent: #f59e0b;
+  --accent-deep: #fbbf24;
+  --on-accent: #1c1b19;
+
+  --primary: #cf7e13;
+  --primary-hover: #f59e0b;
+  --on-primary: #f7e3c2;
+
+  --danger-bg: #7a2718;
+  --on-danger: #fcd9d1;
+  --ok-bg: #2c4526;
+  --on-ok: #cfe3c9;
+
+  --shadow: none;
+}
+
+:root {
   font: 16px/1.5 var(--sans);
   color-scheme: light dark;
   color: var(--text);
@@ -36,25 +102,18 @@
   -webkit-font-smoothing: antialiased;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #18181b;
-    --surface: #27272a;
-    --border: #3f3f46;
-    --text: #d4d4d8;
-    --text-strong: #fafafa;
-    --text-muted: #a1a1aa;
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
 
-    --accent: #3f3f46;
-    --accent-hover: #52525b;
-    --on-accent: #fafafa;
+:root[data-theme='light'] {
+  color-scheme: light;
+}
 
-    --danger-bg: #991b1b;
-    --on-danger: #fecaca;
-
-    /* Dark separates surfaces by making them lighter, so no shadow needed */
-    --shadow: none;
-  }
+/* Otherwise every element animates between palettes on a theme swap and the
+   whole page reads as a flash */
+:root.theme-switching * {
+  transition: none !important;
 }
 
 body {
@@ -67,26 +126,35 @@ h1,
 h2,
 h3 {
   color: var(--text-strong);
-  margin: 0 0 8px;
+  margin: 0;
   line-height: 1.2;
 }
 
 h1 {
-  font-size: 32px;
+  font-size: 28px;
+  letter-spacing: -0.01em;
 }
 
 h2 {
-  font-size: 20px;
+  font-size: 17px;
 }
 
+/* Section headings read as signage labels rather than headings */
 h3 {
-  font-size: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 p {
   margin: 0;
 }
 
-strong {
-  color: var(--text-strong);
+/* Anything focused gets the accent, which is most of what amber is for */
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--accent-deep);
+  outline-offset: 2px;
 }
+
