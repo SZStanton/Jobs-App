@@ -25,47 +25,64 @@ function JobForm({ createJob }) {
 
   return (
     <form onSubmit={handleSubmit} className="job-form">
-      <input
-        type="text"
-        placeholder="Job Description"
-        value={description}
-        onChange={e => setDescription(e.target.value)}
-        required
-      />
+      <h3>Log a Job</h3>
 
-      <input
-        type="text"
-        placeholder="Location"
-        value={location}
-        onChange={e => setLocation(e.target.value)}
-        required
-      />
+      <div className="job-form-fields">
+        <label className="field-label">
+          Description
+          <input
+            type="text"
+            placeholder="What needs doing"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            required
+          />
+        </label>
 
-      {/* Empty default keeps 'required' meaningful, so priority is a choice */}
-      <select
-        value={priority}
-        onChange={e => setPriority(e.target.value)}
-        required
-      >
-        <option value="" disabled>
+        <label className="field-label">
+          Location
+          <input
+            type="text"
+            placeholder="Where"
+            value={location}
+            onChange={e => setLocation(e.target.value)}
+            required
+          />
+        </label>
+
+        <label className="field-label">
           Priority
-        </option>
-        <option value="low">Low</option>
-        <option value="medium">Medium</option>
-        <option value="high">High</option>
-      </select>
+          {/* Empty default keeps 'required' meaningful, so it stays a choice */}
+          <select
+            value={priority}
+            onChange={e => setPriority(e.target.value)}
+            required
+          >
+            <option value="" disabled>
+              Choose
+            </option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </label>
 
-      {/* Optional, so no 'required'. A date input with no value posts '' */}
-      <label className="field-label">
-        Due date (optional)
-        <input
-          type="date"
-          value={dueDate}
-          onChange={e => setDueDate(e.target.value)}
-        />
-      </label>
+        {/* Optional, so no 'required'. A date input with no value posts '' */}
+        <label className="field-label">
+          Due date
+          <input
+            type="date"
+            value={dueDate}
+            onChange={e => setDueDate(e.target.value)}
+          />
+        </label>
+      </div>
 
-      <button type="submit">Submit Job</button>
+      <div className="form-actions">
+        <button type="submit" className="button-primary">
+          Submit Job
+        </button>
+      </div>
     </form>
   );
 }

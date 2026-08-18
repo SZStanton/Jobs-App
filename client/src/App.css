@@ -1,11 +1,49 @@
 .container {
-  width: 90%;
-  max-width: 1000px;
-  margin: auto;
-  padding: 20px;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px 20px 64px;
+  box-sizing: border-box;
 }
 
-/* Card style for form, filter and batch sections */
+/* Header, with the one full-width piece of amber on the page */
+.app-header {
+  border-top: 3px solid var(--accent);
+  padding-top: 16px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.app-header p {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Icon only, so it needs a fixed square rather than text padding */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  color: var(--text-strong);
+}
+
+/* Panels: the form, the filters and the batch controls */
 .job-form,
 .filter-section,
 .batch-section {
@@ -17,119 +55,299 @@
   margin-bottom: var(--gap);
 }
 
-/* Full-width inputs and buttons in form, filter and batch sections */
-.job-form input,
-.job-form select,
-.job-form button,
-.filter-section input,
-.filter-section select,
-.batch-section select,
-.batch-section button {
+/* Filters and batch sit side by side once there is room for them */
+.controls-row {
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 720px) {
+  .controls-row {
+    grid-template-columns: 3fr 2fr;
+  }
+
+  .controls-row > * {
+    margin-bottom: 0;
+  }
+
+  .job-form-fields {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 12px;
+    align-items: end;
+  }
+}
+
+.job-form h3,
+.filter-section h3,
+.batch-section h3 {
+  margin-bottom: 12px;
+}
+
+.job-form-fields {
+  display: grid;
+  gap: 12px;
+}
+
+/* Kept to its own width. A full bleed amber bar is more accent than the rule
+   allows, even on the main action */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+/* Controls */
+input,
+select,
+button {
+  font: inherit;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+input,
+select {
   width: 100%;
-  padding: 10px;
-  margin-top: 10px;
+  padding: 9px 10px;
+  color: var(--text);
+  background: var(--surface);
   box-sizing: border-box;
 }
 
-/* Job list grid */
+input::placeholder {
+  color: var(--text-muted);
+}
+
+.field-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.field-label input,
+.field-label select {
+  margin-top: 5px;
+  /* Under 16px iOS zooms the page in on focus */
+  font-size: 16px;
+  letter-spacing: normal;
+  text-transform: none;
+  font-weight: 400;
+}
+
+button {
+  padding: 9px 14px;
+  background: var(--surface);
+  color: var(--text-strong);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* Touchscreens fire active on press, so every hover needs a matching active */
+button:hover,
+button:active {
+  border-color: var(--text-muted);
+}
+
+/* The one filled button per view, so amber marks the main action and nothing
+   else competes with it. Light and dark need different ambers: the bright one
+   cannot carry white text, the deep one disappears on a dark page */
+.button-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-primary);
+}
+
+.button-primary:hover,
+.button-primary:active {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+  color: var(--on-primary);
+}
+
+button:disabled {
+  color: var(--text-muted);
+  background: var(--surface);
+  border-color: var(--border);
+  cursor: not-allowed;
+}
+
+button:disabled:hover,
+button:disabled:active {
+  border-color: var(--border);
+}
+
+.batch-section .batch-controls {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+}
+
+/* Job list */
 .jobs-list {
   display: grid;
   gap: var(--gap);
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  margin-top: 24px;
 }
 
-/* Individual job card */
 .job-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: var(--gap);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* Full width controls inside each job card */
-.job-card select,
-.job-card button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  box-sizing: border-box;
+/* An overdue card is marked on its edge, so it reads down a column of cards */
+.job-card.is-overdue {
+  border-left: 3px solid var(--accent);
 }
 
-/* Shared control styling. Colour comes from tokens so both themes follow */
-input,
-select,
-button {
-  font: inherit;
-  color: var(--text);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+.job-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
 }
 
-button {
-  background: var(--accent);
-  color: var(--on-accent);
+.job-card-head h2 {
+  flex: 1;
+}
+
+.select-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.select-label input {
+  width: auto;
+  accent-color: var(--accent-deep);
   cursor: pointer;
 }
 
-/* Touchscreens fire active on press, so every hover needs a matching active */
-button:hover,
-button:active {
-  background: var(--accent-hover);
+/* Meta rows: label on the left, value on the right, aligned down the card */
+.job-meta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  font-size: 14px;
+  margin: 0;
 }
 
-button:disabled {
+.job-meta dt {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--text-muted);
-  cursor: not-allowed;
+  padding-top: 2px;
 }
 
-button:disabled:hover,
-button:disabled:active {
+.job-meta dd {
+  margin: 0;
+  color: var(--text);
+}
+
+.job-card-actions {
+  display: grid;
+  gap: 8px;
+  margin-top: auto;
+}
+
+/* Pills. Status and priority are the only things allowed to carry colour */
+.pill {
+  display: inline-block;
+  border-radius: 3px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.pill-submitted {
+  background: var(--bg);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+.pill-in-progress {
   background: var(--accent);
+  color: var(--on-accent);
 }
 
-.view-toggle {
-  padding: 8px 16px;
-  margin-bottom: var(--gap);
+.pill-completed {
+  background: var(--ok-bg);
+  color: var(--on-ok);
 }
 
-.error-banner {
+/* Priority climbs from quiet to loud rather than being three unrelated colours */
+.pill-low {
+  background: var(--bg);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+.pill-medium {
+  background: var(--bg);
+  color: var(--text-strong);
+  border-color: var(--text-muted);
+}
+
+.pill-high {
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 4px solid var(--text-strong);
-  border-radius: var(--radius);
-  padding: 12px var(--gap);
-  margin-bottom: var(--gap);
+  color: var(--accent-deep);
+  border-color: var(--accent-deep);
 }
 
 .badge-overdue {
   background: var(--danger-bg);
   color: var(--on-danger);
-  border-radius: 4px;
-  padding: 2px 8px;
+  border-radius: 3px;
+  padding: 2px 7px;
   margin-left: 8px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
 }
 
-/* Stacks the label above its input, unlike the placeholder-only fields */
-.field-label {
-  display: block;
-  margin-top: 10px;
-  color: var(--text-muted);
+/* Messages */
+.error-banner {
+  background: var(--danger-bg);
+  color: var(--on-danger);
+  border: 1px solid transparent;
+  border-left: 3px solid var(--on-danger);
+  border-radius: var(--radius);
+  padding: 12px var(--gap);
+  margin-bottom: var(--gap);
   font-size: 14px;
-}
-
-/* The input must not inherit the label's smaller size. Under 16px, iOS zooms
-   the page in on focus. The tighter margin keeps the pair looking like one field */
-.field-label input,
-.field-label select {
-  margin-top: 4px;
-  font-size: 16px;
 }
 
 .loading,
 .jobs-empty {
   color: var(--text-muted);
-  padding: var(--gap) 0;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 32px var(--gap);
+  text-align: center;
+  margin-top: 24px;
+  font-size: 14px;
 }
