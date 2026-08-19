@@ -25,10 +25,12 @@ const JobSchema = new mongoose.Schema({
     enum: ['submitted', 'in-progress', 'completed'], // Only status values allowed
     default: 'submitted', // default status
   },
-  // When the job is due. Optional, since plenty of jobs are just "sometime"
+  // When the job is due. Optional, since plenty of jobs are just "sometime".
+  // The floor matches the form, so the api cannot be talked into a 1999 date
   dueDate: {
     type: Date,
     default: null,
+    min: [new Date('2026-01-01'), 'Due date cannot be before 2026'],
   },
   // Archive jobs instead of deleting
   archived: {

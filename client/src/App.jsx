@@ -7,6 +7,8 @@ import JobForm from './components/JobForm';
 import JobList from './components/JobList';
 import FilterJobs from './components/FilterJobs';
 import BatchUpdate from './components/BatchUpdate';
+import ThemeToggle from './components/ThemeToggle';
+import { useTheme } from './hooks/useTheme';
 
 // Base URL for all API requests. Falls back to the local server so a fresh
 // clone runs with no .env
@@ -18,6 +20,8 @@ function readError(error, fallback) {
 }
 
 function App() {
+  // Light or dark, remembered between visits
+  const [theme, toggleTheme] = useTheme();
   // Full Job list
   const [jobs, setJobs] = useState([]);
   // Active filter, default 'all'
@@ -205,7 +209,22 @@ function App() {
 
   return (
     <div className="container">
-      <h1>Maintenance Management App</h1>
+      <header className="app-header">
+        <div>
+          <h1>Maintenance Jobs</h1>
+          <p>{showArchived ? 'Archive' : 'Active work'}</p>
+        </div>
+
+        <div className="header-actions">
+          <button onClick={() => setShowArchived(prev => !prev)}>
+            {showArchived
+              ? 'Back to Active Jobs'
+              : `View Archive (${archivedJobs.length})`}
+          </button>
+
+          <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+        </div>
+      </header>
 
       {error && (
         <p className="error-banner" role="alert">
@@ -213,32 +232,25 @@ function App() {
         </p>
       )}
 
-      <button
-        className="view-toggle"
-        onClick={() => setShowArchived(prev => !prev)}
-      >
-        {showArchived
-          ? 'Back to Active Jobs'
-          : `View Archive (${archivedJobs.length})`}
-      </button>
-
       {!showArchived && (
         <>
           <JobForm createJob={createJob} />
 
-          <FilterJobs
-            filterStatus={filterStatus}
-            setFilterStatus={setFilterStatus}
-            search={search}
-            setSearch={setSearch}
-          />
+          <div className="controls-row">
+            <FilterJobs
+              filterStatus={filterStatus}
+              setFilterStatus={setFilterStatus}
+              search={search}
+              setSearch={setSearch}
+            />
 
-          <BatchUpdate
-            batchStatus={batchStatus}
-            setBatchStatus={setBatchStatus}
-            batchUpdateJobs={batchUpdateJobs}
-            selectedCount={visibleSelectedIds.length}
-          />
+            <BatchUpdate
+              batchStatus={batchStatus}
+              setBatchStatus={setBatchStatus}
+              batchUpdateJobs={batchUpdateJobs}
+              selectedCount={visibleSelectedIds.length}
+            />
+          </div>
         </>
       )}
 

@@ -11,64 +11,87 @@ function JobCard({
   restoreJob,
   deleteJob,
 }) {
+  const overdue = isOverdue(job);
+
   const details = (
-    <>
-      <h2>{job.description}</h2>
-      <p>
-        <strong>Location:</strong> {job.location}
-      </p>
-      <p>
-        <strong>Priority:</strong> {job.priority}
-      </p>
-      <p>
-        <strong>Status:</strong> {job.status}
-      </p>
+    <dl className="job-meta">
+      <dt>Location</dt>
+      <dd>{job.location}</dd>
+
+      <dt>Priority</dt>
+      <dd>
+        <span className={`pill pill-${job.priority}`}>{job.priority}</span>
+      </dd>
+
+      <dt>Status</dt>
+      <dd>
+        <span className={`pill pill-${job.status}`}>{job.status}</span>
+      </dd>
+
       {job.dueDate && (
-        <p>
-          <strong>Due:</strong> {formatDate(job.dueDate)}
-          {isOverdue(job) && <span className="badge-overdue">Overdue</span>}
-        </p>
+        <>
+          <dt>Due</dt>
+          <dd>
+            {formatDate(job.dueDate)}
+            {overdue && <span className="badge-overdue">Overdue</span>}
+          </dd>
+        </>
       )}
-    </>
+    </dl>
   );
 
   if (job.archived) {
     return (
       <div className="job-card">
+        <div className="job-card-head">
+          <h2>{job.description}</h2>
+        </div>
+
         {details}
 
-        <button onClick={() => restoreJob(job._id)}>Restore Job</button>
-        <button onClick={() => deleteJob(job._id)}>Delete Forever</button>
+        <div className="job-card-actions">
+          <button onClick={() => restoreJob(job._id)}>Restore Job</button>
+          <button onClick={() => deleteJob(job._id)}>Delete Forever</button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="job-card">
-      {/* Checkbox for batch selection */}
-      <label>
-        <input
-          type="checkbox"
-          checked={selectedJobs.includes(job._id)}
-          onChange={() => handleCheckboxChange(job._id)}
-        />
-        Select
-      </label>
+    <div className={`job-card${overdue ? ' is-overdue' : ''}`}>
+      <div className="job-card-head">
+        <h2>{job.description}</h2>
+
+        {/* Checkbox for batch selection */}
+        <label className="select-label">
+          <input
+            type="checkbox"
+            checked={selectedJobs.includes(job._id)}
+            onChange={() => handleCheckboxChange(job._id)}
+          />
+          Select
+        </label>
+      </div>
 
       {details}
 
-      {/* Update status of job*/}
-      <select
-        value={job.status}
-        onChange={e => updateJobStatus(job._id, e.target.value)}
-      >
-        <option value="submitted">Submitted</option>
-        <option value="in-progress">In-Progress</option>
-        <option value="completed">Completed</option>
-      </select>
+      <div className="job-card-actions">
+        {/* Update status of job*/}
+        <label className="field-label">
+          Change status
+          <select
+            value={job.status}
+            onChange={e => updateJobStatus(job._id, e.target.value)}
+          >
+            <option value="submitted">Submitted</option>
+            <option value="in-progress">In-Progress</option>
+            <option value="completed">Completed</option>
+          </select>
+        </label>
 
-      {/* Archive job*/}
-      <button onClick={() => archiveJob(job._id)}>Archive Job</button>
+        {/* Archive job*/}
+        <button onClick={() => archiveJob(job._id)}>Archive Job</button>
+      </div>
     </div>
   );
 }

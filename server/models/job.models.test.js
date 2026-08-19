@@ -88,6 +88,19 @@ describe('dueDate', () => {
     expect(job.dueDate.toISOString()).toBe('2026-12-25T00:00:00.000Z');
   });
 
+  it('accepts the first day it allows', async () => {
+    expect(await errorsFor({ dueDate: '2026-01-01' })).toEqual([]);
+  });
+
+  it('rejects a date before 2026', async () => {
+    expect(await errorsFor({ dueDate: '2025-12-31' })).toContain('dueDate');
+  });
+
+  // The floor must not turn the optional field into a required one
+  it('still allows no due date at all', async () => {
+    expect(await errorsFor({ dueDate: null })).toEqual([]);
+  });
+
   it('rejects text that is not a date', async () => {
     expect(await errorsFor({ dueDate: 'next tuesday' })).toContain('dueDate');
   });
