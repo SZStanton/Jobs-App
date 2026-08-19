@@ -54,8 +54,8 @@ describe('batch selection', () => {
     ).toBe(false);
   });
 
-  // This bug reached main three times, via archiving, filtering and search.
-  // A hidden job must never be quietly rewritten by a batch update
+  // This one reached main three times, via archiving, filtering and search.
+  // A hidden job stays out of a batch update
   it('ignores a selected job once a search hides it', async () => {
     const user = userEvent.setup();
     await renderApp();
@@ -100,6 +100,52 @@ describe('batch selection', () => {
     expect(
       await screen.findByRole('button', { name: 'Update 1 Selected' }),
     ).toBeTruthy();
+  });
+
+  it('keeps a hidden job selected after a batch update', async () => {
+    const user = userEvent.setup();
+    await renderApp();
+
+    await user.click(screen.getAllByLabelText('Select')[0]);
+    await user.click(screen.getAllByLabelText('Select')[1]);
+    await user.type(screen.getByLabelText('Search'), 'generator');
+    await user.click(screen.getByRole('button', { name: 'Update 1 Selected' }));
+
+    // The hidden job was never updated, so it keeps its tick
+    await user.clear(screen.getByLabelText('Search'));
+    expect(
+      await screen.findByRole('button', { name: 'Update 1 Selected' }),
+    ).toBeTruthy();
+  });
+});
+
+describe('the job form', () => {
+  it('clears once the job is saved', async () => {
+    const user = userEvent.setup();
+    axios.post.mockResolvedValue({ data: {} });
+    await renderApp();
+
+    await user.type(screen.getByLabelText('Description'), 'Fix the lift');
+    await user.type(screen.getByLabelText('Location'), 'Lobby');
+    await user.selectOptions(screen.getByLabelText('Priority'), 'high');
+    await user.click(screen.getByRole('button', { name: 'Submit Job' }));
+
+    expect(screen.getByLabelText('Description').value).toBe('');
+  });
+
+  // A sleeping server would otherwise take the whole job with nothing to retry
+  it('keeps what was typed when saving fails', async () => {
+    const user = userEvent.setup();
+    axios.post.mockRejectedValue(new Error('Network Error'));
+    await renderApp();
+
+    await user.type(screen.getByLabelText('Description'), 'Fix the lift');
+    await user.type(screen.getByLabelText('Location'), 'Lobby');
+    await user.selectOptions(screen.getByLabelText('Priority'), 'high');
+    await user.click(screen.getByRole('button', { name: 'Submit Job' }));
+
+    expect(await screen.findByRole('alert')).toBeTruthy();
+    expect(screen.getByLabelText('Description').value).toBe('Fix the lift');
   });
 });
 
