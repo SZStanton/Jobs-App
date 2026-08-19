@@ -62,20 +62,15 @@
   grid-template-columns: 1fr;
 }
 
+/* Spacing comes from the grid gap, so the panels must not add their own at
+   any width. Inside the breakpoint this left a 40px gap on phones */
+.controls-row > * {
+  margin-bottom: 0;
+}
+
 @media (min-width: 720px) {
   .controls-row {
     grid-template-columns: 3fr 2fr;
-  }
-
-  .controls-row > * {
-    margin-bottom: 0;
-  }
-
-  .job-form-fields {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 16px;
-    align-items: end;
   }
 }
 
@@ -250,6 +245,11 @@ button:disabled:active {
 }
 
 @media (min-width: 720px) {
+  .job-form-fields {
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    align-items: end;
+  }
+
   .filter-section .filter-controls {
     grid-template-columns: 2fr 1fr;
   }

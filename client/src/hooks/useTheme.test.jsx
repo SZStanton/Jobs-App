@@ -50,6 +50,22 @@ describe('useTheme', () => {
     expect(screen.getByRole('button').textContent).toBe('dark');
   });
 
+  // Storing the inferred default would freeze it, and a later os switch to
+  // dark would be ignored forever
+  it('stores nothing until the user actually chooses', () => {
+    render(<Probe />);
+    expect(localStorage.getItem('jobs-app-theme')).toBe(null);
+  });
+
+  it('stores the choice once toggled', async () => {
+    const user = userEvent.setup();
+    render(<Probe />);
+
+    await act(() => user.click(screen.getByRole('button')));
+
+    expect(localStorage.getItem('jobs-app-theme')).toBe('dark');
+  });
+
   it('prefers a stored choice over the system setting', () => {
     localStorage.setItem('jobs-app-theme', 'dark');
     render(<Probe />);
