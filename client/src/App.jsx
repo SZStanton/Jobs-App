@@ -53,14 +53,17 @@ function App() {
     }
   };
 
-  // Create new job - POST
+  // Create new job - POST. Reports back so the form knows whether it is safe
+  // to clear what the user typed
   const createJob = async jobData => {
     setError(null);
     try {
       await axios.post(`${API_URL}/jobs`, jobData);
       await fetchJobs();
+      return true;
     } catch (err) {
       setError(readError(err, 'Could not create job'));
+      return false;
     }
   };
 
@@ -149,7 +152,11 @@ function App() {
         status: batchStatus,
       });
 
-      setSelectedJobs([]);
+      // Only what was updated gets cleared. A job hidden by the filter was
+      // left alone, so it keeps its tick for when it comes back
+      setSelectedJobs(prev =>
+        prev.filter(id => !visibleSelectedIds.includes(id)),
+      );
       await fetchJobs();
     } catch (err) {
       setError(readError(err, 'Could not update the selected jobs'));
@@ -169,21 +176,20 @@ function App() {
     return matchesStatus && matchesTerm;
   });
 
-  // Only act on what is actually on screen. Filtering hides jobs without
-  // deselecting them, and a batch must not touch anything the user cannot see
+  // Filtering hides jobs without deselecting them, so a batch acts on the
+  // visible ones only
   const visibleSelectedIds = selectedJobs.filter(id =>
     filteredJobs.some(job => job._id === id),
   );
 
-  // An empty list means several different things, so say which one
+  // An empty list means several different things, so the message says which
   function activeEmptyMessage() {
     if (jobs.length === 0) {
-      // A failed first load leaves this empty too, and the banner covers that.
-      // Checked here rather than up front, since a failed archive or delete
-      // also sets error and must not blank out the filter message
+      // A failed first load leaves this empty too, and the banner covers it.
+      // Checked here so a failed archive does not blank the filter message
       return error ? null : 'No jobs yet. Submit one above to get started.';
     }
-    // Both can be narrowing at once, and blaming only one of them is a lie
+    // Both can be narrowing at once, so the message names them both
     if (term && filterStatus !== 'all') {
       return `No "${filterStatus}" jobs match "${search.trim()}".`;
     }

@@ -8,15 +8,20 @@ function JobForm({ createJob }) {
   const [dueDate, setDueDate] = useState('');
 
   // Handles form submission
-  const handleSubmit = event => {
+  const handleSubmit = async event => {
     event.preventDefault();
 
-    createJob({
+    const created = await createJob({
       description,
       location,
       priority,
       dueDate,
     });
+
+    // The fields keep their values if it did not save. A sleeping server
+    // would otherwise take the whole job with nothing left to retry
+    if (!created) return;
+
     setDescription('');
     setLocation('');
     setPriority('');
