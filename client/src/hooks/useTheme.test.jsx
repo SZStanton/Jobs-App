@@ -51,7 +51,7 @@ describe('useTheme', () => {
   });
 
   // Storing the inferred default would freeze it, and a later os switch to
-  // dark would be ignored forever
+  // dark would never be picked up
   it('stores nothing until the user actually chooses', () => {
     render(<Probe />);
     expect(localStorage.getItem('jobs-app-theme')).toBe(null);

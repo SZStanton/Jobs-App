@@ -1,8 +1,7 @@
 import { defineConfig } from 'vitest/config';
 
-// Pinned to a negative utc offset on purpose. The due date logic is correct at
-// UTC+2 either way, so tests run in local time here would never catch a
-// regression to the timezone bugs they exist to guard
+// Pinned to a negative utc offset. The due date logic is correct at UTC+2
+// either way, so local time here would never catch a timezone regression
 const TZ = 'America/New_York';
 
 // Two projects so one 'npm test' covers both sides. Server validation is the

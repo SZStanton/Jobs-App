@@ -26,7 +26,7 @@ const JobSchema = new mongoose.Schema({
     default: 'submitted', // default status
   },
   // When the job is due. Optional, since plenty of jobs are just "sometime".
-  // The floor matches the form, so the api cannot be talked into a 1999 date
+  // The floor matches the form's min, so the api holds the same line
   dueDate: {
     type: Date,
     default: null,

@@ -1,5 +1,5 @@
 // Icons are lucide's sun and moon, copied from lucide-static (ISC). The icon
-// shows the theme you are in, not the one you are switching to
+// shows the current theme, not the one the button switches to
 const iconProps = {
   width: 18,
   height: 18,
@@ -44,8 +44,8 @@ function ThemeToggle({ theme, toggleTheme }) {
       type="button"
       className="theme-toggle"
       onClick={toggleTheme}
-      // The icon shows the current theme, so the label has to say what the
-      // button does or it reads as a statement rather than a control
+      // The icon shows the current theme, so the label carries the action.
+      // Without it a screen reader announces a state, not a control
       aria-label={isLight ? 'Switch to dark mode' : 'Switch to light mode'}
       title={isLight ? 'Switch to dark mode' : 'Switch to light mode'}
     >

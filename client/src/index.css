@@ -1,8 +1,8 @@
-/* Every colour in the app lives here and nowhere else. Components name tokens,
-   never colours, because the palette changes often.
+/* Every colour lives here and nowhere else. Components name tokens, never
+   colours, because the palette changes often */
 
-   Direction: industrial site notice. Amber carries status and urgency and
-   nothing else. If amber is one of the first things you notice, it is too much. */
+/* Direction is industrial site notice. Amber carries status and urgency only,
+   and if it is one of the first things on screen it is too much */
 
 :root {
   --bg: #f5f4f1;
@@ -33,10 +33,8 @@
   /* Light needs shadow for depth because the page is already near white */
   --shadow: 0 1px 2px rgba(28, 27, 25, 0.05), 0 1px 3px rgba(28, 27, 25, 0.08);
 
-  /* Buttons are raised rather than drawn. Dark cannot use shadow for that, so
-     it lifts the fill instead and these tokens carry both approaches */
-  /* Fields sit lower than the panel they are in, so they read as somewhere
-     you type rather than as more panel */
+  /* Fields sit lower than the panel they are in, so they read as a place to
+     type rather than as more panel */
   --field-bg: #f5f4f1;
   --pill-neutral-bg: #efeae0;
   /* Priority climbs warm. Status uses a cool hue so the two axes never read
@@ -49,10 +47,11 @@
   --btn-bg: #efe9dd;
   --btn-bg-hover: #f7f2e8;
   --btn-border: #c3bcaf;
-  /* Cool, where the buttons and fields are warm. At this lightness hue is the
-     only thing that can separate them */
-  /* Your amber, but opaque enough to see. Below about 40% it composites to
-     within 1.05 of the white panel and the control disappears */
+  /* Buttons are raised rather than drawn. Dark cannot use shadow for that, so
+     it lifts the fill instead and these tokens carry both approaches */
+
+  /* The dropdown tint stays above 40%, or it composites to within 1.05 of the
+     white panel and the control disappears */
   --select-bg: #faefda66;
   --select-bg-hover: #f7e0b499;
   --shadow-btn:
@@ -210,7 +209,7 @@ p {
   margin: 0;
 }
 
-/* Anything focused gets the accent, which is most of what amber is for */
+/* Focus takes the accent, which is most of what amber is for */
 :where(a, button, input, select, textarea):focus-visible {
   outline: 2px solid var(--accent-deep);
   outline-offset: 2px;

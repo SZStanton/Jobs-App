@@ -17,9 +17,9 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-// If the pin in vitest.config.js ever goes, these tests still pass but stop
-// proving anything, because the logic is correct at UTC+2 either way
-it('runs behind utc, or the tests below are worthless', () => {
+// Without the pin in vitest.config.js these still pass but stop meaning
+// anything, since the logic is correct at UTC+2 either way
+it('runs behind utc, which the tests below depend on', () => {
   expect(new Date('2026-08-18T12:00:00Z').getTimezoneOffset()).toBeGreaterThan(
     0,
   );
@@ -58,8 +58,8 @@ describe('isOverdue', () => {
     );
   });
 
-  // Archiving removes the status control, so without this an archived job
-  // would wear a red badge forever
+  // Archiving removes the status control, so an archived job would otherwise
+  // wear a red badge forever
   it('is false once the job is archived, even if not completed', () => {
     pretendToday('2026-08-18T09:00:00Z');
     expect(

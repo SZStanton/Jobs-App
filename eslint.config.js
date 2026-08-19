@@ -1,11 +1,3 @@
-// JAVASCRIPT PROJECTS. Copy to the project root and rename to eslint.config.js
-//
-// Install at the ROOT, not inside client or server:
-//   npm i -D eslint @eslint/js globals eslint-plugin-react-hooks
-//   npm i -D eslint-plugin-react-refresh prettier
-//
-// FRONTEND ONLY: swap 'client/**' for 'src/**' and delete the backend block
-
 import js from '@eslint/js';
 import globals from 'globals';
 import reactHooks from 'eslint-plugin-react-hooks';

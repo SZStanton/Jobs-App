@@ -62,8 +62,8 @@
   grid-template-columns: 1fr;
 }
 
-/* Spacing comes from the grid gap, so the panels must not add their own at
-   any width. Inside the breakpoint this left a 40px gap on phones */
+/* Spacing comes from the grid gap, so the panels drop their own at every
+   width. Scoped to the breakpoint it left a 40px gap on phones */
 .controls-row > * {
   margin-bottom: 0;
 }
@@ -110,7 +110,7 @@ select {
   box-sizing: border-box;
 }
 
-/* Recessed, because this is somewhere you type */
+/* Recessed, since this is a place to type */
 input {
   background: var(--field-bg);
 }
@@ -120,8 +120,8 @@ input:focus {
   background: var(--surface);
 }
 
-/* A dropdown is something you press, not somewhere you type. It gets its own
-   surface, lighter than a button, so the two are not mistaken for each other */
+/* A dropdown is pressed rather than typed into, so it takes its own surface
+   between the fields and the buttons */
 select {
   background: var(--select-bg);
   border-color: var(--btn-border);
@@ -178,8 +178,8 @@ button:hover {
   box-shadow: var(--shadow-btn-hover);
 }
 
-/* Touchscreens only ever fire active, so it has to carry the feedback. The
-   button drops onto the page and loses its shadow, which reads as a press */
+/* Touchscreens only ever fire active, so it carries the feedback. The button
+   drops onto the page and loses its shadow, which reads as a press */
 button:active {
   background: var(--btn-bg-hover);
   border-color: var(--text-muted);
@@ -187,9 +187,8 @@ button:active {
   transform: translateY(1px);
 }
 
-/* The one filled button per view, so amber marks the main action and nothing
-   else competes with it. Light and dark need different ambers: the bright one
-   cannot carry white text, the deep one disappears on a dark page */
+/* One filled button per view, so nothing competes with the main action. The
+   two themes need different ambers, see the tokens */
 .button-primary {
   background: var(--primary);
   border-color: var(--primary);
@@ -311,7 +310,7 @@ button:disabled:active {
   white-space: nowrap;
 }
 
-/* The whole label is the target, so it needs to look like one on hover */
+/* The whole label is the target, so it looks like one on hover */
 .select-label:hover,
 .select-label:active {
   background: var(--field-bg);
