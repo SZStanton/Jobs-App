@@ -58,7 +58,7 @@ function JobForm({ createJob }) {
             onChange={e => setPriority(e.target.value)}
             required
           >
-            <option value="" disabled>
+            <option value="" disabled hidden>
               Choose
             </option>
             <option value="low">Low</option>
@@ -72,6 +72,9 @@ function JobForm({ createJob }) {
           Due date
           <input
             type="date"
+            /* Nothing was due before this project existed, and it stops the
+               picker opening on 2001 when the field is empty */
+            min="2026-01-01"
             value={dueDate}
             onChange={e => setDueDate(e.target.value)}
           />
