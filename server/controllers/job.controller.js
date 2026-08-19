@@ -29,7 +29,12 @@ function sendError(res, err, fallback) {
     return res.status(400).json({ error: err.message });
   }
   if (err.name === 'CastError') {
-    return res.status(400).json({ error: 'Invalid job id' });
+    // A bad dueDate casts badly too, so the message names the field rather
+    // than always blaming the id
+    return res.status(400).json({
+      error:
+        err.path === '_id' ? 'Invalid job id' : `Invalid value for ${err.path}`,
+    });
   }
   console.error(err);
   return res.status(500).json({ error: fallback });
@@ -65,15 +70,16 @@ exports.updateJob = async (req, res) => {
       return res.status(400).json({ error: 'No editable fields in request' });
     }
 
-    // runValidators is off by default on an update, which is what let a junk
-    // status past the enum before
-    const job = await Job.findByIdAndUpdate(req.params.id, fields, {
-      returnDocument: 'after',
-      runValidators: true,
-    });
+    // runValidators is off by default on an update, so the enums only bite
+    // with it on. Archived jobs are excluded here as well as on delete
+    const job = await Job.findOneAndUpdate(
+      { _id: req.params.id, archived: false },
+      fields,
+      { returnDocument: 'after', runValidators: true },
+    );
 
     if (!job) {
-      return res.status(404).json({ error: 'Job not found' });
+      return res.status(404).json({ error: 'No active job with that id' });
     }
 
     res.json(job);
@@ -97,7 +103,10 @@ exports.batchUpdateStatus = async (req, res) => {
         .json({ error: `status must be one of: ${STATUSES.join(', ')}` });
     }
 
-    const result = await Job.updateMany({ _id: { $in: ids } }, { status });
+    const result = await Job.updateMany(
+      { _id: { $in: ids }, archived: false },
+      { status },
+    );
     res.json({ matched: result.matchedCount, modified: result.modifiedCount });
   } catch (err) {
     sendError(res, err, 'Batch update error');
@@ -144,8 +153,8 @@ exports.restoreJob = async (req, res) => {
   }
 };
 
-// DELETE JOB (permanent, no way back). Archived only, so a live job cannot be
-// destroyed by calling this directly. The UI hiding the button is not a rule
+// DELETE JOB (permanent, no way back). Archived only, so a live job survives
+// a direct call to this route
 exports.deleteJob = async (req, res) => {
   try {
     const job = await Job.findOneAndDelete({

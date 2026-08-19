@@ -33,7 +33,7 @@ describe('an active job', () => {
     expect(screen.getByText('Block C, roof')).toBeTruthy();
   });
 
-  // Only a real click proves the label is wired to the checkbox
+  // Only a real click exercises the label being wired to the checkbox
   it('toggles selection when the label is clicked', async () => {
     const user = userEvent.setup();
     const { handleCheckboxChange } = renderCard();
@@ -72,9 +72,16 @@ describe('an archived job', () => {
 });
 
 describe('due dates', () => {
+  // The label is a <dt> reading "Due", with no colon. Matching /Due:/ passed
+  // whatever the card rendered
   it('shows no due line when there is no due date', () => {
     renderCard();
-    expect(screen.queryByText(/Due:/)).toBeNull();
+    expect(screen.queryByText('Due')).toBeNull();
+  });
+
+  it('shows the due line when there is one', () => {
+    renderCard({ dueDate: '2099-01-01T00:00:00.000Z' });
+    expect(screen.getByText('Due')).toBeTruthy();
   });
 
   it('flags an overdue job', () => {
