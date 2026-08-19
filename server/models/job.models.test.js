@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 // model comes back as the default export
 import Job from './job.models.js';
 
-// validateSync runs the schema rules with no connection, so these pass from a
+// validate runs the schema rules with no connection, so these pass from a
 // clean clone with no database and no credentials
 const valid = {
   description: 'Replace burst geyser',
@@ -96,7 +96,7 @@ describe('dueDate', () => {
     expect(await errorsFor({ dueDate: '2025-12-31' })).toContain('dueDate');
   });
 
-  // The floor must not turn the optional field into a required one
+  // The floor leaves the field optional
   it('still allows no due date at all', async () => {
     expect(await errorsFor({ dueDate: null })).toEqual([]);
   });

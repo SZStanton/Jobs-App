@@ -36,8 +36,8 @@ export function useTheme() {
       // Private browsing can refuse to store. The theme still applies
     }
 
-    // Kill transitions for two frames, or every element animates between the
-    // two palettes at once and it reads as a flash
+    // Transitions are off for two frames, or every element animates between
+    // the two palettes at once and it reads as a flash
     root.classList.add('theme-switching');
     setTheme(next);
 
