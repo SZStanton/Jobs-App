@@ -94,27 +94,19 @@ function App() {
     await Promise.all([fetchJobs(), fetchArchivedJobs()]);
   };
 
-  // Archive single job - PUT
-  const archiveJob = async id => {
+  // Archive and restore are the same write with a different verb - PUT
+  const moveJob = async (id, action) => {
     setError(null);
     try {
-      await axios.put(`${API_URL}/jobs/${id}/archive`);
+      await axios.put(`${API_URL}/jobs/${id}/${action}`);
       await refreshBothLists();
     } catch (err) {
-      setError(readError(err, 'Could not archive job'));
+      setError(readError(err, `Could not ${action} job`));
     }
   };
 
-  // Restore a job out of the archive - PUT
-  const restoreJob = async id => {
-    setError(null);
-    try {
-      await axios.put(`${API_URL}/jobs/${id}/restore`);
-      await refreshBothLists();
-    } catch (err) {
-      setError(readError(err, 'Could not restore job'));
-    }
-  };
+  const archiveJob = id => moveJob(id, 'archive');
+  const restoreJob = id => moveJob(id, 'restore');
 
   // Delete a job for good - DELETE
   const deleteJob = async id => {
@@ -165,7 +157,8 @@ function App() {
 
   // Status and keyword narrow the list together, both in memory. The list is
   // small enough that a round trip per keystroke would be the slower option
-  const term = search.trim().toLowerCase();
+  const trimmed = search.trim();
+  const term = trimmed.toLowerCase();
   const filteredJobs = jobs.filter(job => {
     const matchesStatus = filterStatus === 'all' || job.status === filterStatus;
     const matchesTerm =
@@ -183,23 +176,24 @@ function App() {
   );
 
   // An empty list means several different things, so the message says which
-  function activeEmptyMessage() {
+  const emptyMessage = (() => {
+    // A failed load empties the list too, and the banner already covers that.
+    // Tied to the whole list rather than the filtered view, so a search that
+    // matches nothing still explains itself while an error is showing
+    const loaded = showArchived ? archivedJobs : jobs;
+    if (loaded.length === 0 && error) return null;
+
+    if (showArchived) return 'Nothing archived yet.';
     if (jobs.length === 0) {
-      // A failed first load leaves this empty too, and the banner covers it.
-      // Checked here so a failed archive does not blank the filter message
-      return error ? null : 'No jobs yet. Submit one above to get started.';
+      return 'No jobs yet. Submit one above to get started.';
     }
     // Both can be narrowing at once, so the message names them both
     if (term && filterStatus !== 'all') {
-      return `No "${filterStatus}" jobs match "${search.trim()}".`;
+      return `No "${filterStatus}" jobs match "${trimmed}".`;
     }
-    if (term) return `No jobs match "${search.trim()}".`;
+    if (term) return `No jobs match "${trimmed}".`;
     return `No jobs with the status "${filterStatus}".`;
-  }
-
-  const emptyMessage = activeEmptyMessage();
-
-  const archivedEmptyMessage = error ? null : 'Nothing archived yet.';
+  })();
 
   // Load jobs
   useEffect(() => {
@@ -274,7 +268,7 @@ function App() {
           archiveJob={archiveJob}
           restoreJob={restoreJob}
           deleteJob={deleteJob}
-          emptyMessage={showArchived ? archivedEmptyMessage : emptyMessage}
+          emptyMessage={emptyMessage}
         />
       )}
     </div>

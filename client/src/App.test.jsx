@@ -192,6 +192,20 @@ describe('loading and errors', () => {
     expect(await screen.findByRole('alert')).toBeTruthy();
   });
 
+  // The guard is tied to the whole list, not the filtered view, so a search
+  // that matches nothing still explains itself
+  it('still explains an empty search while an error is showing', async () => {
+    const user = userEvent.setup();
+    axios.put.mockRejectedValue(new Error('Network Error'));
+    await renderApp();
+
+    await user.click(screen.getAllByRole('button', { name: 'Archive Job' })[0]);
+    await screen.findByRole('alert');
+    await user.type(screen.getByLabelText('Search'), 'zzz');
+
+    expect(await screen.findByText('No jobs match "zzz".')).toBeTruthy();
+  });
+
   it('does not claim the list is empty when the load failed', async () => {
     axios.get.mockRejectedValue(new Error('Network Error'));
     render(<App />);
