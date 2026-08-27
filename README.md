@@ -1,4 +1,4 @@
-# Jobs-To-Do-List
+# Jobs To-Do List
 
 A maintenance job tracker where the work that is late tells you so. Jobs carry a
 priority and a due date, overdue ones are worked out on the fly rather than
