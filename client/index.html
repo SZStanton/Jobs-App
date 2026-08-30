@@ -2,9 +2,57 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Jobs To-Do List</title>
+    <meta
+      name="description"
+      content="Track maintenance jobs by priority and due date, with overdue work flagged automatically."
+    />
+
+    <!-- The png is rendered from the svg, so the two cannot drift. Safari and
+         android both want a raster and ignore the svg -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+
+    <!-- The theme follows the system unless the toggle has been used, so both
+         values are here rather than one -->
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#f5f4f1"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#1c1b19"
+    />
+
+    <!-- Link previews. Absolute urls or every scraper quietly skips the image,
+         and linkedin warns under about 100 characters of description -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Sebastian Stanton" />
+    <meta property="og:title" content="Maintenance Jobs" />
+    <meta
+      property="og:description"
+      content="A maintenance job tracker where the work that is late tells you so. Jobs carry a priority and a due date, overdue ones are worked out on the fly rather than stored, and anything archived can be restored or deleted for good."
+    />
+    <meta property="og:url" content="https://jobs-app.szstanton.com/" />
+    <meta
+      property="og:image"
+      content="https://jobs-app.szstanton.com/og-image.jpg"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Maintenance Jobs, a job tracker built with React, Express and MongoDB, shown with three job cards carrying priority, status and an overdue flag."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:image"
+      content="https://jobs-app.szstanton.com/og-image.jpg"
+    />
     <script>
       // Applied before first paint, so a saved dark theme does not flash light
       try {
