@@ -6,7 +6,7 @@ stored, and anything archived can be restored or deleted for good.
 
 ## Live demo
 
-**https://jobs-app-szstanton.vercel.app**
+**https://jobs-app.szstanton.com**
 
 No sign-up, no account. The API runs on a free Render instance that sleeps after
 about 15 minutes idle, so the first load can take up to a minute to wake it. The
@@ -41,8 +41,8 @@ page says so while it waits.
 ## Getting started
 
 ```bash
-git clone https://github.com/SZStanton/Jobs-App
-cd Jobs-App
+git clone https://github.com/SZStanton/jobs-app
+cd jobs-app
 npm install
 ```
 
